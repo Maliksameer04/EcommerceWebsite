@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ShopEase - Online Store</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <!-- Navigation Bar -->
+    <header>
+        <nav class="navbar">
+
+            <div class="logo">
+                ShopEase
+            </div>
+
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="#">Products</a></li>
+                <li><a href="#">Categories</a></li>
+                <li><a href="#">Cart 🛒</a></li>
+                <li><a href="#">Login</a></li>
+            </ul>
+
+        </nav>
+    </header>
+
+
+    <!-- Hero Section -->
+    <main>
+
+        <section class="hero">
+
+            <div class="hero-content">
+
+                <h1>Shop Smart. Live Better.</h1>
+
+                <p>
+                    Discover quality products at great prices.
+                    Everything you need, all in one place.
+                </p>
+
+                <a href="#" class="shop-button">
+                    Shop Now
+                </a>
+
+            </div>
+
+        </section>
+
+
+        <!-- Featured Products -->
+        <section class="products-section">
+
+            <h2>Featured Products</h2>
+
+            
+<div class="product-grid">
+
+    {% for product in products %}
+
+    <div class="product-card">
+
+        <div class="product-image">
+            {{ product["image"] }}
+        </div>
+
+        <h3>
+            {{ product["name"] }}
+        </h3>
+
+        <p class="price">
+            ₹{{ "{:,.0f}".format(product["price"]) }}
+        </p>
+
+        <button>
+            Add to Cart
+        </button>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- Footer -->
+    <footer>
+
+        <p>
+            © 2026 ShopEase. All rights reserved.
+        </p>
+
+    </footer>
+
+</body>
+</html>
