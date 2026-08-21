@@ -2,7 +2,7 @@ A simple full-stack e-commerce website built with Python, Flask, SQLite, HTML, C
 
 This is being developed as a portfolio project to demonstrate practical skills in web development, backend programming, database management, and software development.
 
-programming languages used:
+Technologies Used :
 Python
 Flask
 SQLite
