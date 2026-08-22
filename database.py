@@ -16,61 +16,64 @@ def create_database():
             image TEXT
         )
     """)
-
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL
+        )
+    """)
     connection.commit()
     connection.close()
-
 
 def add_products():
     connection = sqlite3.connect("database.db")
-
     cursor = connection.cursor()
 
-    cursor.execute("SELECT COUNT(*) FROM products")
+    products = [
+        ("Laptop", 55000, "Electronics",
+         "Powerful laptop for work and entertainment.", "💻"),
 
-    count = cursor.fetchone()[0]
+        ("Smartphone", 25000, "Electronics",
+         "Modern smartphone with excellent performance.", "📱"),
 
-    if count == 0:
-        products = [
-            (
-                "Laptop",
-                55000,
-                "Electronics",
-                "Powerful laptop for work and entertainment.",
-                "💻"
-            ),
-            (
-                "Smartphone",
-                25000,
-                "Electronics",
-                "Modern smartphone with excellent performance.",
-                "📱"
-            ),
-            (
-                "Headphones",
-                3000,
-                "Audio",
-                "Comfortable headphones with clear sound.",
-                "🎧"
-            ),
-            (
-                "Keyboard",
-                2000,
-                "Accessories",
-                "Reliable keyboard for everyday use.",
-                "⌨️"
-            )
-        ]
+        ("Headphones", 3000, "Audio",
+         "Comfortable headphones with clear sound.", "🎧"),
 
-        cursor.executemany("""
-            INSERT INTO products
-            (name, price, category, description, image)
-            VALUES (?, ?, ?, ?, ?)
-        """, products)
+        ("Keyboard", 2000, "Accessories",
+         "Reliable keyboard for everyday use.", "⌨️"),
+
+        ("Smart Watch", 5000, "Wearables",
+         "Track your activities and stay connected.", "⌚"),
+
+        ("Gaming Mouse", 1500, "Accessories",
+         "Responsive mouse designed for gaming.", "🖱️"),
+
+        ("Bluetooth Speaker", 2500, "Audio",
+         "Portable speaker with high-quality sound.", "🔊"),
+
+        ("Tablet", 18000, "Electronics",
+         "Lightweight tablet for entertainment and productivity.", "📱")
+    ]
+
+    for product in products:
+
+        cursor.execute(
+            "SELECT id FROM products WHERE name = ?",
+            (product[0],)
+        )
+
+        if cursor.fetchone() is None:
+
+            cursor.execute("""
+                INSERT INTO products
+                (name, price, category, description, image)
+                VALUES (?, ?, ?, ?, ?)
+            """, product)
 
     connection.commit()
     connection.close()
-
 
 if __name__ == "__main__":
     create_database()

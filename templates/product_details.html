@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{ product["name"] }} - ShopEase</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <header>
+        <nav class="navbar">
+
+            <div class="logo">
+                ShopEase
+            </div>
+
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/?category=Electronics">Products</a></li>
+                <li><a href="#">Cart 🛒</a></li>
+
+                {% if session.get("user_id") %}
+
+                    <li>
+                        <span>Welcome, {{ session.get("user_name") }}</span>
+                    </li>
+
+                    <li>
+                        <a href="/logout">Logout</a>
+                    </li>
+
+                {% else %}
+
+                    <li>
+                        <a href="/login">Login</a>
+                    </li>
+
+                    <li>
+                        <a href="/register">Register</a>
+                    </li>
+
+                {% endif %}
+
+            </ul>
+
+        </nav>
+    </header>
+
+
+    <main>
+
+        <section class="product-details">
+
+            <div class="details-image">
+                {{ product["image"] }}
+            </div>
+
+            <div class="details-content">
+
+                <h1>{{ product["name"] }}</h1>
+
+                <p class="details-price">
+                    ₹{{ "{:,.0f}".format(product["price"]) }}
+                </p>
+
+                <p class="details-category">
+                    Category: {{ product["category"] }}
+                </p>
+
+                <p class="details-description">
+                    {{ product["description"] }}
+                </p>
+
+                <button>
+                    Add to Cart
+                </button>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <footer>
+
+        <p>
+            © 2026 ShopEase. All rights reserved.
+        </p>
+
+    </footer>
+
+</body>
+
+</html>

@@ -24,7 +24,27 @@
                 <li><a href="#">Products</a></li>
                 <li><a href="#">Categories</a></li>
                 <li><a href="#">Cart 🛒</a></li>
-                <li><a href="#">Login</a></li>
+                {% if session.get("user_id") %}
+
+    <li>
+        <span>Welcome, {{ session.get("user_name") }}</span>
+    </li>
+
+    <li>
+        <a href="/logout">Logout</a>
+    </li>
+
+{% else %}
+
+    <li>
+        <a href="/login">Login</a>
+    </li>
+
+    <li>
+        <a href="/register">Register</a>
+    </li>
+
+{% endif %}
             </ul>
 
         </nav>
@@ -58,6 +78,30 @@
         <section class="products-section">
 
             <h2>Featured Products</h2>
+            <form class="search-form" method="GET" action="/">
+    <input
+        type="text"
+        name="search"
+        placeholder="Search products..."
+    >
+
+    <button type="submit">
+        Search
+    </button>
+</form>
+<div class="category-links">
+
+    <a href="/">All</a>
+
+    <a href="/?category=Electronics">Electronics</a>
+
+    <a href="/?category=Audio">Audio</a>
+
+    <a href="/?category=Accessories">Accessories</a>
+
+    <a href="/?category=Wearables">Wearables</a>
+
+</div>
 
             
 <div class="product-grid">
@@ -71,8 +115,10 @@
         </div>
 
         <h3>
-            {{ product["name"] }}
-        </h3>
+    <a href="/product/{{ product['id'] }}">
+        {{ product["name"] }}
+    </a>
+</h3>
 
         <p class="price">
             ₹{{ "{:,.0f}".format(product["price"]) }}
@@ -88,7 +134,6 @@
 
 </div>
 
-            </div>
 
         </section>
 
