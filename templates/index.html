@@ -23,7 +23,7 @@
                 <li><a href="/">Home</a></li>
                 <li><a href="#">Products</a></li>
                 <li><a href="#">Categories</a></li>
-                <li><a href="#">Cart 🛒</a></li>
+                <li><a href="/cart">Cart 🛒</a></li>
                 {% if session.get("user_id") %}
 
     <li>
@@ -124,9 +124,9 @@
             ₹{{ "{:,.0f}".format(product["price"]) }}
         </p>
 
-        <button>
-            Add to Cart
-        </button>
+        <a href="/add-to-cart/{{ product['id'] }}" class="cart-button">
+    Add to Cart
+</a>
 
     </div>
 

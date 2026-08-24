@@ -138,6 +138,162 @@ def login():
 def logout():
     session.clear()
     return redirect(url_for("home"))
+@app.route("/add-to-cart/<int:product_id>")
+def add_to_cart(product_id):
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    user_id = session["user_id"]
+
+    connection = sqlite3.connect("database.db")
+    cursor = connection.cursor()
+
+    cursor.execute(
+        """
+        SELECT id, quantity
+        FROM cart
+        WHERE user_id = ? AND product_id = ?
+        """,
+        (user_id, product_id)
+    )
+
+    item = cursor.fetchone()
+
+    if item:
+        cursor.execute(
+            """
+            UPDATE cart
+            SET quantity = quantity + 1
+            WHERE id = ?
+            """,
+            (item[0],)
+        )
+    else:
+        cursor.execute(
+            """
+            INSERT INTO cart (user_id, product_id, quantity)
+            VALUES (?, ?, 1)
+            """,
+            (user_id, product_id)
+        )
+
+    connection.commit()
+    connection.close()
+
+    return redirect(url_for("home"))
+@app.route("/cart")
+def cart():
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    user_id = session["user_id"]
+
+    connection = sqlite3.connect("database.db")
+    connection.row_factory = sqlite3.Row
+
+    cart_items = connection.execute(
+        """
+        SELECT
+            cart.product_id,
+            cart.quantity,
+            products.name,
+            products.price,
+            products.image
+        FROM cart
+        JOIN products
+        ON cart.product_id = products.id
+        WHERE cart.user_id = ?
+        """,
+        (user_id,)
+    ).fetchall()
+
+    connection.close()
+
+    total = sum(
+        item["price"] * item["quantity"]
+        for item in cart_items
+    )
+
+    return render_template(
+        "cart.html",
+        cart_items=cart_items,
+        total=total
+    )
+@app.route("/cart/increase/<int:product_id>")
+def increase_cart(product_id):
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    connection = sqlite3.connect("database.db")
+    cursor = connection.cursor()
+
+    cursor.execute(
+        """
+        UPDATE cart
+        SET quantity = quantity + 1
+        WHERE user_id = ? AND product_id = ?
+        """,
+        (session["user_id"], product_id)
+    )
+
+    connection.commit()
+    connection.close()
+
+    return redirect(url_for("cart"))
+@app.route("/cart/decrease/<int:product_id>")
+def decrease_cart(product_id):
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    connection = sqlite3.connect("database.db")
+    cursor = connection.cursor()
+
+    cursor.execute(
+        """
+        UPDATE cart
+        SET quantity = quantity - 1
+        WHERE user_id = ? AND product_id = ?
+        """,
+        (session["user_id"], product_id)
+    )
+
+    cursor.execute(
+        """
+        DELETE FROM cart
+        WHERE user_id = ? AND product_id = ? AND quantity <= 0
+        """,
+        (session["user_id"], product_id)
+    )
+
+    connection.commit()
+    connection.close()
+
+    return redirect(url_for("cart"))
+@app.route("/cart/remove/<int:product_id>")
+def remove_from_cart(product_id):
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    connection = sqlite3.connect("database.db")
+    cursor = connection.cursor()
+
+    cursor.execute(
+        """
+        DELETE FROM cart
+        WHERE user_id = ? AND product_id = ?
+        """,
+        (session["user_id"], product_id)
+    )
+
+    connection.commit()
+    connection.close()
+
+    return redirect(url_for("cart"))
 
 if __name__ == "__main__":
     app.run(debug=True)

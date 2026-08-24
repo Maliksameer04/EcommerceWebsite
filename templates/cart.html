@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Shopping Cart - ShopEase</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <header>
+        <nav class="navbar">
+
+            <div class="logo">
+                ShopEase
+            </div>
+
+            <ul class="nav-links">
+
+                <li><a href="/">Home</a></li>
+                <li><a href="/">Products</a></li>
+                <li><a href="/cart">Cart 🛒</a></li>
+
+                {% if session.get("user_id") %}
+
+                    <li>
+                        <span>Welcome, {{ session.get("user_name") }}</span>
+                    </li>
+
+                    <li>
+                        <a href="/logout">Logout</a>
+                    </li>
+
+                {% else %}
+
+                    <li>
+                        <a href="/login">Login</a>
+                    </li>
+
+                    <li>
+                        <a href="/register">Register</a>
+                    </li>
+
+                {% endif %}
+
+            </ul>
+
+        </nav>
+    </header>
+
+
+    <main>
+
+        <section class="cart-section">
+
+            <h1>Shopping Cart</h1>
+
+            {% if cart_items %}
+
+                <div class="cart-container">
+
+                    {% for item in cart_items %}
+
+                        <div class="cart-item">
+
+                            <div class="cart-image">
+                                {{ item["image"] }}
+                            </div>
+
+                            <div class="cart-info">
+
+                                <h2>
+                                    {{ item["name"] }}
+                                </h2>
+
+                                <p>
+                                    ₹{{ "{:,.0f}".format(item["price"]) }}
+                                </p>
+
+                                <p>
+                                    Quantity: {{ item["quantity"] }}
+                                </p>
+
+                            </div>
+
+                            <div class="cart-actions">
+
+                                <a href="/cart/decrease/{{ item['product_id'] }}">
+                                    ➖
+                                </a>
+
+                                <a href="/cart/increase/{{ item['product_id'] }}">
+                                    ➕
+                                </a>
+
+                                <a href="/cart/remove/{{ item['product_id'] }}">
+                                    🗑️
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <div class="cart-total">
+
+                    <h2>
+                        Total: ₹{{ "{:,.0f}".format(total) }}
+                    </h2>
+
+                    <button>
+                        Checkout
+                    </button>
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-cart">
+
+                    <h2>Your cart is empty 🛒</h2>
+
+                    <a href="/">
+                        Continue Shopping
+                    </a>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+
+    <footer>
+
+        <p>
+            © 2026 ShopEase. All rights reserved.
+        </p>
+
+    </footer>
+
+</body>
+
+</html>
