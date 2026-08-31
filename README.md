@@ -53,6 +53,7 @@ User-specific cart and order information is protected so that users only access 
 
 ## Project Structure
 
+```text
 EcommerceWebsite/
 │
 ├── app.py
@@ -73,6 +74,7 @@ EcommerceWebsite/
     ├── order_confirmation.html
     ├── orders.html
     └── order_details.html
+```
 
 ## How to Run
 
@@ -112,6 +114,7 @@ http://127.0.0.1:5000
 
 ## Application Flow
 
+```text
 Register / Login
        ↓
 Browse Products
@@ -133,6 +136,7 @@ Order Confirmation
 My Orders
        ↓
 Order Details
+```
 
 ## Project Status
 
