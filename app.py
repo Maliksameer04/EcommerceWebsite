@@ -1,9 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
+import os
 
 app = Flask(__name__)
-app.secret_key = "shopease-secret-key"
+app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
 
 def get_products():
     connection = sqlite3.connect("database.db")
@@ -467,4 +468,4 @@ def remove_from_cart(product_id):
     return redirect(url_for("cart"))
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)
