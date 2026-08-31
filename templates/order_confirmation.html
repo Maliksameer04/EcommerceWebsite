@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Order Confirmed - ShopEase</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <header>
+        <nav class="navbar">
+
+            <div class="logo">
+                ShopEase
+            </div>
+
+            <ul class="nav-links">
+
+                <li><a href="/">Home</a></li>
+                <li><a href="/cart">Cart 🛒</a></li>
+                <li><a href="/orders">My Orders</a></li>
+
+                {% if session.get("user_id") %}
+
+                    <li>
+                        <span>Welcome, {{ session.get("user_name") }}</span>
+                    </li>
+
+                    <li>
+                        <a href="/logout">Logout</a>
+                    </li>
+
+                {% endif %}
+
+            </ul>
+
+        </nav>
+    </header>
+
+
+    <main>
+
+        <section class="confirmation-section">
+
+            <div class="confirmation-container">
+
+                <h1>🎉 Order Confirmed!</h1>
+
+                <p>
+                    Thank you for shopping with ShopEase.
+                </p>
+
+                <p>
+                    Your order number is:
+                    <strong>#{{ order_id }}</strong>
+                </p>
+
+                <a href="/orders">
+                    View My Orders
+                </a>
+
+                <a href="/">
+                    Continue Shopping
+                </a>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <footer>
+
+        <p>
+            © 2026 ShopEase. All rights reserved.
+        </p>
+
+    </footer>
+
+</body>
+
+</html>

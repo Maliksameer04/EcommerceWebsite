@@ -24,6 +24,7 @@
                 <li><a href="#">Products</a></li>
                 <li><a href="#">Categories</a></li>
                 <li><a href="/cart">Cart 🛒</a></li>
+                <li><a href="/orders">My Orders</a></li>
                 {% if session.get("user_id") %}
 
     <li>
@@ -83,6 +84,7 @@
         type="text"
         name="search"
         placeholder="Search products..."
+        value="{{ search }}"
     >
 
     <button type="submit">
@@ -110,9 +112,9 @@
 
     <div class="product-card">
 
-        <div class="product-image">
+        <a href="/product/{{ product['id'] }}" class="product-image">
             {{ product["image"] }}
-        </div>
+        </a>
 
         <h3>
     <a href="/product/{{ product['id'] }}">

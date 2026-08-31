@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Orders - ShopEase</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<header>
+    <nav class="navbar">
+
+        <div class="logo">
+            ShopEase
+        </div>
+
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/cart">Cart 🛒</a></li>
+            <li><a href="/orders">My Orders</a></li>
+
+            {% if session.get("user_id") %}
+                <li>
+                    <span>Welcome, {{ session.get("user_name") }}</span>
+                </li>
+
+                <li>
+                    <a href="/logout">Logout</a>
+                </li>
+            {% endif %}
+        </ul>
+
+    </nav>
+</header>
+
+
+<main>
+
+    <section class="orders-section">
+
+        <h1>My Orders</h1>
+
+        {% if orders %}
+
+            <div class="orders-container">
+
+                {% for order in orders %}
+
+                    <div class="order-card">
+
+                        <h2>
+                            Order #{{ order["id"] }}
+                        </h2>
+
+                        <p>
+                            Date: {{ order["created_at"] }}
+                        </p>
+
+                        <p>
+                            Status: <strong>{{ order["status"] }}</strong>
+                        </p>
+
+                        <p>
+                            Total:
+                            <strong>
+                                ₹{{ "{:,.0f}".format(order["total"]) }}
+                            </strong>
+                            <a href="/order/{{ order['id'] }}">
+                               View Details
+                            </a>
+                        </p>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-orders">
+
+                <h2>No orders yet.</h2>
+
+                <p>
+                    Your completed orders will appear here.
+                </p>
+
+                <a href="/">
+                    Start Shopping
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</main>
+
+
+<footer>
+
+    <p>
+        © 2026 ShopEase. All rights reserved.
+    </p>
+
+</footer>
+
+</body>
+
+</html>

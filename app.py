@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, redirect, url_for,session
+from flask import Flask, render_template, request, redirect, url_for, session
+from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 
 app = Flask(__name__)
@@ -77,9 +78,17 @@ def register():
 
     if request.method == "POST":
 
-        name = request.form["name"]
-        email = request.form["email"]
-        password = request.form["password"]
+        name = request.form["name"].strip()
+        email = request.form["email"].strip().lower()
+        raw_password = request.form["password"]
+
+        if not name or not email or not raw_password:
+            return "All fields are required."
+
+        if len(raw_password) < 6:
+            return "Password must be at least 6 characters."
+
+        password = generate_password_hash(raw_password)
 
         connection = sqlite3.connect("database.db")
 
@@ -96,7 +105,6 @@ def register():
 
         except sqlite3.IntegrityError:
             connection.close()
-
             return "Email already registered."
 
         connection.close()
@@ -104,6 +112,7 @@ def register():
         return redirect(url_for("home"))
 
     return render_template("register.html")
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
 
@@ -118,14 +127,14 @@ def login():
         user = connection.execute(
             """
             SELECT * FROM users
-            WHERE email = ? AND password = ?
+            WHERE email = ?
             """,
-            (email, password)
+            (email, )
         ).fetchone()
 
         connection.close()
 
-        if user:
+        if user and check_password_hash(user["password"], password):
             session["user_id"] = user["id"]
             session["user_name"] = user["name"]
 
@@ -220,6 +229,168 @@ def cart():
         "cart.html",
         cart_items=cart_items,
         total=total
+    )
+@app.route("/checkout", methods=["GET", "POST"])
+def checkout():
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    user_id = session["user_id"]
+
+    connection = sqlite3.connect("database.db")
+    connection.row_factory = sqlite3.Row
+
+    cart_items = connection.execute(
+        """
+        SELECT
+            cart.product_id,
+            cart.quantity,
+            products.name,
+            products.price,
+            products.image
+        FROM cart
+        JOIN products
+        ON cart.product_id = products.id
+        WHERE cart.user_id = ?
+        """,
+        (user_id,)
+    ).fetchall()
+
+    if not cart_items:
+        connection.close()
+        return redirect(url_for("cart"))
+
+    total = sum(
+        item["price"] * item["quantity"]
+        for item in cart_items
+    )
+
+    if request.method == "POST":
+
+        cursor = connection.cursor()
+
+        cursor.execute(
+            """
+            INSERT INTO orders (user_id, total, status)
+            VALUES (?, ?, ?)
+            """,
+            (user_id, total, "Placed")
+        )
+
+        order_id = cursor.lastrowid
+
+        for item in cart_items:
+
+            cursor.execute(
+                """
+                INSERT INTO order_items
+                (order_id, product_id, quantity, price)
+                VALUES (?, ?, ?, ?)
+                """,
+                (
+                    order_id,
+                    item["product_id"],
+                    item["quantity"],
+                    item["price"]
+                )
+            )
+
+        cursor.execute(
+            "DELETE FROM cart WHERE user_id = ?",
+            (user_id,)
+        )
+
+        connection.commit()
+        connection.close()
+
+        return redirect(url_for("order_confirmation", order_id=order_id))
+
+    connection.close()
+
+    return render_template(
+        "checkout.html",
+        cart_items=cart_items,
+        total=total
+    )
+@app.route("/order-confirmation/<int:order_id>")
+def order_confirmation(order_id):
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    return render_template(
+        "order_confirmation.html",
+        order_id=order_id
+    )
+@app.route("/orders")
+def orders():
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    connection = sqlite3.connect("database.db")
+    connection.row_factory = sqlite3.Row
+
+    orders = connection.execute(
+        """
+        SELECT *
+        FROM orders
+        WHERE user_id = ?
+        ORDER BY created_at DESC
+        """,
+        (session["user_id"],)
+    ).fetchall()
+
+    connection.close()
+
+    return render_template(
+        "orders.html",
+        orders=orders
+    )
+@app.route("/order/<int:order_id>")
+def order_details(order_id):
+
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    connection = sqlite3.connect("database.db")
+    connection.row_factory = sqlite3.Row
+
+    order = connection.execute(
+        """
+        SELECT *
+        FROM orders
+        WHERE id = ? AND user_id = ?
+        """,
+        (order_id, session["user_id"])
+    ).fetchone()
+
+    if order is None:
+        connection.close()
+        return "Order not found.", 404
+
+    items = connection.execute(
+        """
+        SELECT
+            order_items.quantity,
+            order_items.price,
+            products.name,
+            products.image
+        FROM order_items
+        JOIN products
+        ON order_items.product_id = products.id
+        WHERE order_items.order_id = ?
+        """,
+        (order_id,)
+    ).fetchall()
+
+    connection.close()
+
+    return render_template(
+        "order_details.html",
+        order=order,
+        items=items
     )
 @app.route("/cart/increase/<int:product_id>")
 def increase_cart(product_id):

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Checkout - ShopEase</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <header>
+        <nav class="navbar">
+
+            <div class="logo">
+                ShopEase
+            </div>
+
+            <ul class="nav-links">
+
+                <li><a href="/">Home</a></li>
+                <li><a href="/cart">Cart 🛒</a></li>
+
+                {% if session.get("user_id") %}
+
+                    <li>
+                        <span>Welcome, {{ session.get("user_name") }}</span>
+                    </li>
+
+                    <li>
+                        <a href="/logout">Logout</a>
+                    </li>
+
+                {% else %}
+
+                    <li>
+                        <a href="/login">Login</a>
+                    </li>
+
+                {% endif %}
+
+            </ul>
+
+        </nav>
+    </header>
+
+
+    <main>
+
+        <section class="checkout-section">
+
+            <h1>Checkout</h1>
+
+            <div class="checkout-container">
+
+                <h2>Order Summary</h2>
+
+                {% for item in cart_items %}
+
+                    <div class="checkout-item">
+
+                        <span>
+                            {{ item["name"] }}
+                            × {{ item["quantity"] }}
+                        </span>
+
+                        <span>
+                            ₹{{ "{:,.0f}".format(item["price"] * item["quantity"]) }}
+                        </span>
+
+                    </div>
+
+                {% endfor %}
+
+                <hr>
+
+                <div class="checkout-total">
+
+                    <strong>Total</strong>
+
+                    <strong>
+                        ₹{{ "{:,.0f}".format(total) }}
+                    </strong>
+
+                </div>
+
+
+                <form method="POST">
+
+                    <button type="submit">
+                        Place Order
+                    </button>
+
+                </form>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <footer>
+
+        <p>
+            © 2026 ShopEase. All rights reserved.
+        </p>
+
+    </footer>
+
+</body>
+
+</html>

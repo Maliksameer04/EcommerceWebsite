@@ -25,7 +25,7 @@ def create_database():
         )
     """)
     cursor.execute("""
-    CREATE TABLE IF NOT EXISTS cart (
+     CREATE TABLE IF NOT EXISTS cart (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL,
         product_id INTEGER NOT NULL,
@@ -34,6 +34,27 @@ def create_database():
         FOREIGN KEY (product_id) REFERENCES products(id)
     )
 """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS orders (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            total REAL NOT NULL,
+            status TEXT NOT NULL DEFAULT 'Placed',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        )
+    """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS order_items (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            order_id INTEGER NOT NULL,
+            product_id INTEGER NOT NULL,
+            quantity INTEGER NOT NULL,
+            price REAL NOT NULL,
+            FOREIGN KEY (order_id) REFERENCES orders(id),
+            FOREIGN KEY (product_id) REFERENCES products(id)
+        )
+    """)
     connection.commit()
     connection.close()
 
@@ -84,9 +105,36 @@ def add_products():
 
     connection.commit()
     connection.close()
+def migrate_passwords():
+    connection = sqlite3.connect("database.db")
+    cursor = connection.cursor()
+
+    users = cursor.execute(
+        "SELECT id, password FROM users"
+    ).fetchall()
+
+    from werkzeug.security import generate_password_hash
+
+    for user_id, password in users:
+
+        if not password.startswith("scrypt:"):
+            hashed_password = generate_password_hash(password)
+
+            cursor.execute(
+                """
+                UPDATE users
+                SET password = ?
+                WHERE id = ?
+                """,
+                (hashed_password, user_id)
+            )
+
+    connection.commit()
+    connection.close()
 
 if __name__ == "__main__":
     create_database()
     add_products()
+    
 
     print("Database created successfully!")

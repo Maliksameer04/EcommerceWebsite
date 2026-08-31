@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Order Details - ShopEase</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<header>
+    <nav class="navbar">
+
+        <div class="logo">
+            ShopEase
+        </div>
+
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/cart">Cart 🛒</a></li>
+            <li><a href="/orders">My Orders</a></li>
+
+            {% if session.get("user_id") %}
+                <li>
+                    <span>Welcome, {{ session.get("user_name") }}</span>
+                </li>
+
+                <li>
+                    <a href="/logout">Logout</a>
+                </li>
+            {% endif %}
+        </ul>
+
+    </nav>
+</header>
+
+<main>
+
+    <section class="orders-section">
+
+        <h1>Order #{{ order["id"] }}</h1>
+
+        <p>
+            Date: {{ order["created_at"] }}
+        </p>
+
+        <p>
+            Status: <strong>{{ order["status"] }}</strong>
+        </p>
+
+        <h2>Products</h2>
+
+        <div class="orders-container">
+
+            {% for item in items %}
+
+                <div class="order-card">
+
+                    <div class="product-image">
+                        {{ item["image"] }}
+                    </div>
+
+                    <h3>
+                        {{ item["name"] }}
+                    </h3>
+
+                    <p>
+                        Quantity: {{ item["quantity"] }}
+                    </p>
+
+                    <p>
+                        Price:
+                        ₹{{ "{:,.0f}".format(item["price"]) }}
+                    </p>
+
+                    <p>
+                        Subtotal:
+                        ₹{{ "{:,.0f}".format(item["price"] * item["quantity"]) }}
+                    </p>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+        <h2>
+            Total:
+            ₹{{ "{:,.0f}".format(order["total"]) }}
+        </h2>
+
+        <a href="/orders">
+            ← Back to My Orders
+        </a>
+
+    </section>
+
+</main>
+
+<footer>
+
+    <p>
+        © 2026 ShopEase. All rights reserved.
+    </p>
+
+</footer>
+
+</body>
+
+</html>
